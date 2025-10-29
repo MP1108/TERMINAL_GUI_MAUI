@@ -1,0 +1,75 @@
+## .NET MAUI GitIgnore
+
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Ww][Ii][Nn]32/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Rider
+.idea/
+*.sln.iml
+
+# MAUI/iOS/Android specific
+*.app
+*.ipa
+*.apk
+*.aab
+*.dll
+*.pdb
+*.cache
+*.mpack
+*.dylib
+*.DS_Store
+
+# NuGet
+[Nn]u[Gg]et/
+*.nupkg
+packages/
+
+# Files built by Visual Studio
+*_i.c
+*_p.c
+*.ilk
+*.meta
+*.obj
+*.iobj
+*.pch
+*.pdb
+*.ipdb
+*.pgc
+*.pgd
+*.rsp
+*.sbr
+*.tlb
+*.tli
+*.tlh
+*.tmp
+*.tmp_proj
+*.log
+*.vspscc
+*.vssscc
+.builds
+*.pidb
+*.svclog
+*.scc
+
+# Auto-generated files
+Generated/
