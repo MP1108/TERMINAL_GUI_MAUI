@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <_PostProcessingItem Include="TERMINAL_GUI_MAUI.app/TERMINAL_GUI_MAUI">
+      <IsAppExtension>false</IsAppExtension>
+      <BCSymbolMapName>TERMINAL_GUI_MAUI.bcsymbolmap</BCSymbolMapName>
+      <NoDSymUtil>true</NoDSymUtil>
+      <dSYMSourcePathExists>false</dSYMSourcePathExists>
+      <NoSymbolStrip>true</NoSymbolStrip>
+      <dSYMInfoPlistRelativePath>TERMINAL_GUI_MAUI.app.dSYM\Contents\Info.plist</dSYMInfoPlistRelativePath>
+      <SymbolFile>/Users/mateuszpepek/RiderProjects/TERMINAL_GUI_MAUI/TERMINAL_GUI_MAUI/obj/Debug/net8.0-ios/iossimulator-arm64/mtouch-symbols.list</SymbolFile>
+      <DSymName>TERMINAL_GUI_MAUI.app.dSYM</DSymName>
+      <SourceProjectPath>/Users/mateuszpepek/RiderProjects/TERMINAL_GUI_MAUI/TERMINAL_GUI_MAUI</SourceProjectPath>
+      <IsXPCService></IsXPCService>
+    </_PostProcessingItem>
+  </ItemGroup>
+</Project>

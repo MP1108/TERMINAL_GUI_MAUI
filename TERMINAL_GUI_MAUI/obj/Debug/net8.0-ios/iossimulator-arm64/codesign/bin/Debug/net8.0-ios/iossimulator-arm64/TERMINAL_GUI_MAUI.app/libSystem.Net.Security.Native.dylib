@@ -1,0 +1,1 @@
+-v --force --timestamp=none --sign - /Users/mateuszpepek/RiderProjects/TERMINAL_GUI_MAUI/TERMINAL_GUI_MAUI/bin/Debug/net8.0-ios/iossimulator-arm64/TERMINAL_GUI_MAUI.app/libSystem.Net.Security.Native.dylib
