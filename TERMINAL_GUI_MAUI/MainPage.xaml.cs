@@ -1,4 +1,5 @@
 ﻿using TERMINAL_GUI_MAUI.Models_Maui;
+using TERMINAL_GUI_MAUI.Services;
 using System.Collections.ObjectModel;
 using System.Text;
 
@@ -9,14 +10,46 @@ public partial class MainPage : ContentPage
     public ObservableCollection<Produkt> Produkty { get; set; } = new();
     private int _nextId = 1;
     private const string DefaultCategory = "Inne";
+    
+    private DatabaseService _databaseService;
 
     public MainPage()
     {
         InitializeComponent();
         ProduktyList.ItemsSource = Produkty;
+        
+        _databaseService = new DatabaseService();
+        _ = LoadDataFromDatabase();
+    
         UpdateProductCount();
         DodajLog("Aplikacja uruchomiona pomyślnie.");
-        LoadSampleData();
+    }
+
+    private async Task LoadDataFromDatabase()
+    {
+        try
+        {
+            var produktyFromDb = await _databaseService.GetProduktyAsync();
+        
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                Produkty.Clear();
+                foreach (var produkt in produktyFromDb)
+                {
+                    Produkty.Add(produkt);
+                }
+            
+                _nextId = Produkty.Any() ? Produkty.Max(p => p.Id) + 1 : 1;
+            
+                UpdateProductCount();
+                DodajLog($"Załadowano {Produkty.Count} produktów z bazy danych.");
+            });
+        }
+        catch (Exception ex)
+        {
+            DodajLog($"BŁĄD ładowania z bazy: {ex.Message}");
+            LoadSampleData();
+        }
     }
 
     private void LoadSampleData()
@@ -46,7 +79,7 @@ public partial class MainPage : ContentPage
     {
         try
         {
-            var nazwa = await DisplayPromptAsync("Nowy produkt", 
+            var nazwa = await DisplayPromptAsync("Nowy produkt",
                 "Podaj nazwę produktu:", "Dodaj", "Anuluj", "Nazwa produktu");
 
             if (string.IsNullOrWhiteSpace(nazwa))
@@ -61,7 +94,7 @@ public partial class MainPage : ContentPage
                 return;
             }
 
-            var cenaText = await DisplayPromptAsync("Cena produktu", 
+            var cenaText = await DisplayPromptAsync("Cena produktu",
                 "Podaj cenę produktu:", "Dodaj", "Anuluj", "0,00", -1, Keyboard.Numeric);
 
             if (!decimal.TryParse(cenaText, out decimal cena) || cena < 0)
@@ -70,7 +103,7 @@ public partial class MainPage : ContentPage
                 return;
             }
 
-            var kategoria = await DisplayPromptAsync("Kategoria produktu", 
+            var kategoria = await DisplayPromptAsync("Kategoria produktu",
                 "Podaj kategorię:", "Dodaj", "Pomiń", DefaultCategory);
 
             if (string.IsNullOrWhiteSpace(kategoria))
@@ -79,7 +112,6 @@ public partial class MainPage : ContentPage
             var now = DateTime.Now;
             var produkt = new Produkt
             {
-                Id = _nextId++,
                 Nazwa = nazwa.Trim(),
                 Cena = Math.Round(cena, 2),
                 Kategoria = kategoria.Trim(),
@@ -87,10 +119,17 @@ public partial class MainPage : ContentPage
                 DataModyfikacji = now
             };
 
-            Produkty.Add(produkt);
-            UpdateProductCount();
-            ProduktyList.ScrollTo(produkt, animate: true);
-            DodajLog($"Dodano produkt: '{produkt.Nazwa}' za {produkt.Cena:C}");
+            var result = await _databaseService.SaveProduktAsync(produkt);
+
+            if (result > 0)
+            {
+                await LoadDataFromDatabase();
+                DodajLog($"Dodano produkt: '{produkt.Nazwa}' za {produkt.Cena:C}");
+            }
+            else
+            {
+                await DisplayAlert("Błąd", "Nie udało się zapisać produktu do bazy", "OK");
+            }
         }
         catch (Exception ex)
         {
@@ -140,8 +179,12 @@ public partial class MainPage : ContentPage
             produkt.Kategoria = string.IsNullOrWhiteSpace(nowaKategoria) ? produkt.Kategoria : nowaKategoria.Trim();
             produkt.DataModyfikacji = DateTime.Now;
 
-            UpdateProductCount();
-            DodajLog($"Zaktualizowano produkt: '{staraNazwa}' -> '{produkt.Nazwa}'");
+            var result = await _databaseService.UpdateProduktAsync(produkt);
+            if (result > 0)
+            {
+                UpdateProductCount();
+                DodajLog($"Zaktualizowano produkt: '{staraNazwa}' -> '{produkt.Nazwa}'");
+            }
         }
         catch (Exception ex)
         {
@@ -171,9 +214,14 @@ public partial class MainPage : ContentPage
             }
 
             var nazwaProduktu = produkt.Nazwa;
-            Produkty.Remove(produkt);
-            UpdateProductCount();
-            DodajLog($"Usunięto produkt: '{nazwaProduktu}'");
+            var result = await _databaseService.DeleteProduktAsync(produkt);
+            
+            if (result > 0)
+            {
+                Produkty.Remove(produkt);
+                UpdateProductCount();
+                DodajLog($"Usunięto produkt: '{nazwaProduktu}'");
+            }
         }
         catch (Exception ex)
         {
@@ -211,9 +259,9 @@ public partial class MainPage : ContentPage
             }
 
             await File.WriteAllTextAsync(path, csv.ToString(), Encoding.UTF8);
-            
+        
             DodajLog($"Wyeksportowano {Produkty.Count} produktów do: {fileName}");
-            
+        
             await DisplayAlert("Eksport zakończony", 
                 $"Pomyślnie wyeksportowano {Produkty.Count} produktów do pliku:\n{fileName}", "OK");
         }
@@ -223,7 +271,6 @@ public partial class MainPage : ContentPage
             DodajLog($"BŁĄD eksportu: {ex.Message}");
         }
     }
-
     private string EscapeCsvField(string field)
     {
         if (string.IsNullOrEmpty(field)) return string.Empty;
@@ -241,5 +288,40 @@ public partial class MainPage : ContentPage
         {
             LogBox.Text += $"{DateTime.Now:HH:mm:ss} → {wiadomosc}\n";
         });
+    }
+
+    // TEST SQLite - możesz usunąć później
+    private async void TestSQLite_Clicked(object sender, EventArgs e)
+    {
+        try
+        {
+            var testProdukt = new Produkt 
+            { 
+                Nazwa = "TEST SQLite", 
+                Cena = 99.99m, 
+                Kategoria = "Test",
+                DataUtworzenia = DateTime.Now,
+                DataModyfikacji = DateTime.Now
+            };
+            
+            var saveResult = await _databaseService.SaveProduktAsync(testProdukt);
+            DodajLog($"SQLite ZAPIS: {saveResult} (1 = sukces)");
+            
+            var produkty = await _databaseService.GetProduktyAsync();
+            DodajLog($"SQLite ODCZYT: {produkty.Count} produktów");
+            
+            if (saveResult > 0)
+            {
+                var deleteResult = await _databaseService.DeleteProduktAsync(testProdukt);
+                DodajLog($"SQLite USUWANIE: {deleteResult} (1 = sukces)");
+            }
+            
+            await DisplayAlert("Test SQLite", 
+                $"Zapis: {saveResult}\nOdczyt: {produkty.Count}", "OK");
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Błąd SQLite", ex.Message, "OK");
+        }
     }
 }

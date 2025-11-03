@@ -11,7 +11,6 @@
           Padding="20"
           RowSpacing="12">
 
-        
         <VerticalStackLayout Grid.Row="0" Spacing="8">
             <Label Text="🏪 Zarządzanie Produktami" 
                    FontSize="24" 
@@ -25,7 +24,6 @@
                    TextColor="#7f8c8d"/>
         </VerticalStackLayout>
 
-       
         <ScrollView Grid.Row="1" Orientation="Horizontal">
             <HorizontalStackLayout Spacing="10" HorizontalOptions="Center">
                 <Button Text="➕ Dodaj" 
@@ -55,10 +53,17 @@
                         TextColor="White"
                         CornerRadius="8"
                         Padding="15,10"/>
+                
+                <!-- Tymczasowy przycisk testowy -->
+                <Button Text="🧪 Test SQLite" 
+                        Clicked="TestSQLite_Clicked" 
+                        BackgroundColor="#FF9800" 
+                        TextColor="White"
+                        CornerRadius="8"
+                        Padding="15,10"/>
             </HorizontalStackLayout>
         </ScrollView>
 
-       
         <CollectionView
             x:Name="ProduktyList"
             Grid.Row="2"
@@ -97,27 +102,23 @@
                                    FontAttributes="Bold" 
                                    TextColor="#2c3e50"/>
                             
-                        
                             <Label Grid.Column="1" Grid.Row="0"
                                    Text="{Binding Id, StringFormat='ID: {0}'}" 
                                    FontSize="12" 
                                    TextColor="#95a5a6"
                                    HorizontalOptions="End"/>
                             
-                       
                             <Label Grid.Column="0" Grid.Row="1"
                                    Text="{Binding Cena, StringFormat='Cena: {0:C}'}" 
                                    FontSize="16" 
                                    TextColor="#27ae60"
                                    FontAttributes="Bold"/>
                             
-                          
                             <Label Grid.Column="0" Grid.Row="2"
                                    Text="{Binding Kategoria, StringFormat='📁 Kategoria: {0}'}" 
                                    FontSize="14" 
                                    TextColor="#3498db"/>
                             
-                          
                             <VerticalStackLayout Grid.Column="0" Grid.Row="3" Spacing="2">
                                 <Label Text="{Binding DataUtworzenia, StringFormat='📅 Utworzono: {0:dd/MM/yyyy HH:mm}'}"
                                        FontSize="10"

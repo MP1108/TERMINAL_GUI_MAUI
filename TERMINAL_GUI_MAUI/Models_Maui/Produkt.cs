@@ -1,14 +1,16 @@
 using System.ComponentModel;
+using SQLite;
 
 namespace TERMINAL_GUI_MAUI.Models_Maui;
 
 public class Produkt : INotifyPropertyChanged
 {
+    [PrimaryKey, AutoIncrement]
+    public int Id { get; set; }
+    
     private string _nazwa;
     private decimal _cena;
     private string _kategoria;
-
-    public int Id { get; set; }
 
     public string Nazwa
     {
